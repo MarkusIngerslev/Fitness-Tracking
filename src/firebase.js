@@ -1,17 +1,30 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCt2jN1ew-uF2FcgRO1Kp5LK3gj2ZSoBwQ",
-  authDomain: "mobile-dev-exam.firebaseapp.com",
-  projectId: "mobile-dev-exam",
-  storageBucket: "mobile-dev-exam.firebasestorage.app",
-  messagingSenderId: "1028684122659",
-  appId: "1:1028684122659:web:859b6ce3da92f75b533f96",
+  apiKey: "AIzaSyDwFyFylwznhFR2X1YXI7rnJnlNtnZhYPI",
+  authDomain: "maps-test-14733.firebaseapp.com",
+  projectId: "maps-test-14733",
+  storageBucket: "maps-test-14733.appspot.com",
+  messagingSenderId: "393469563141",
+  appId: "1:393469563141:web:06a482438fdf41119a676c",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-export { app };
+export {
+  app,
+  auth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+};
