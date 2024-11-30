@@ -1,26 +1,80 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import { auth, createUserWithEmailAndPassword } from "../firebase";
+import Toast from "react-native-toast-message";
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+} from "../firebase";
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // User registered successfully
-        const user = userCredential.user;
-        console.log("Registered user: ", user.email);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Dashboard" }],
-        }); // Navigate to Dashboard and reset navigation stack
+    if (password !== confirmPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Password Error",
+        text2: "Passwords do not match",
+      });
+      return;
+    }
+
+    fetchSignInMethodsForEmail(auth, email)
+      .then((signInMethods) => {
+        if (signInMethods.length > 0) {
+          Toast.show({
+            type: "error",
+            text1: "Registration Error",
+            text2: "Email already in use",
+          });
+          return;
+        }
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // User registered successfully
+            const user = userCredential.user;
+            console.log("Registered user: ", user.email);
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Dashboard" }],
+            }); // Navigate to Dashboard and reset navigation stack
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            let errorMessage = "";
+            switch (errorCode) {
+              case "auth/weak-password":
+                errorMessage =
+                  "Password is too weak. It should be at least 6 characters.";
+                break;
+              case "auth/invalid-email":
+                errorMessage = "Invalid email address.";
+                break;
+              case "auth/email-already-in-use":
+                errorMessage = "Email already in use.";
+                break;
+              default:
+                errorMessage = error.message;
+                break;
+            }
+            console.error("Registration error: ", errorCode, errorMessage);
+            Toast.show({
+              type: "error",
+              text1: "Registration Error",
+              text2: errorMessage,
+            });
+          });
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error("Registration error: ", errorCode, errorMessage);
+        console.error("Error checking email: ", error.message);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: error.message,
+        });
       });
   };
 
@@ -39,6 +93,13 @@ const RegisterScreen = ({ navigation }) => {
         placeholder="Password"
         value={password}
         onChangeText={(text) => setPassword(text)}
+        secureTextEntry
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm Password"
+        value={confirmPassword}
+        onChangeText={(text) => setConfirmPassword(text)}
         secureTextEntry
       />
       <Button title="Register" onPress={handleRegister} />

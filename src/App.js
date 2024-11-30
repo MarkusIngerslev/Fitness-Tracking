@@ -1,10 +1,11 @@
 import React from "react";
+import Toast from "react-native-toast-message";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-// Pages import
-import RegisterScreen from "./pages/RegisterScreen";
+// Page imports
 import LoginScreen from "./pages/LoginScreen";
+import RegisterScreen from "./pages/RegisterScreen";
 import Dashboard from "./pages/Dashboard";
 
 const Stack = createStackNavigator();
@@ -17,6 +18,7 @@ const App = () => {
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="Dashboard" component={Dashboard} />
       </Stack.Navigator>
+      <Toast />
     </NavigationContainer>
   );
 };
