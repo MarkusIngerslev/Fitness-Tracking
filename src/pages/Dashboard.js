@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { auth, signOut } from "../firebase";
+import Toast from "react-native-toast-message";
 
 const Dashboard = ({ navigation }) => {
   const handleLogout = () => {
@@ -12,9 +13,19 @@ const Dashboard = ({ navigation }) => {
           index: 0,
           routes: [{ name: "Login" }],
         }); // Reset navigation stack and navigate to Login
+        Toast.show({
+          type: "success",
+          text1: "Logout Successful",
+          text2: "You have been logged out successfully",
+        });
       })
       .catch((error) => {
         console.error("Logout error: ", error.message);
+        Toast.show({
+          type: "error",
+          text1: "Logout Error",
+          text2: error.message,
+        });
       });
   };
 

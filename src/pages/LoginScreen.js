@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import Toast from "react-native-toast-message";
 import { auth, signInWithEmailAndPassword } from "../firebase";
 
 const LoginScreen = ({ navigation }) => {
@@ -21,6 +22,19 @@ const LoginScreen = ({ navigation }) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.error("Login error: ", errorCode, errorMessage);
+        let toastMessage = errorMessage;
+        if (errorCode === "auth/user-not-found") {
+          toastMessage = "User not found";
+        } else if (errorCode === "auth/invalid-email") {
+          toastMessage = "Invalid email address";
+        } else if (errorCode === "auth/invalid-credential") {
+          toastMessage = "Invalid credentials";
+        }
+        Toast.show({
+          type: "error",
+          text1: "Login Error",
+          text2: toastMessage,
+        });
       });
   };
 
