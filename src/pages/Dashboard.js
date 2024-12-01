@@ -1,4 +1,3 @@
-// src/pages/Dashboard.js
 import React from "react";
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import { auth, signOut } from "../firebase";
