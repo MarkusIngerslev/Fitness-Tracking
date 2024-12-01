@@ -1,4 +1,3 @@
-// src/hooks/useTrainingData.js
 import { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import {
@@ -14,6 +13,7 @@ export const useTrainingData = () => {
     totalWorkouts: 0,
     thisWeekWorkouts: 0,
     lastWorkout: null,
+    workoutHistory: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -41,6 +41,7 @@ export const useTrainingData = () => {
           return workoutDate >= weekAgo;
         }).length,
         lastWorkout: workouts.sort((a, b) => b.date - a.date)[0],
+        workoutHistory: workouts.sort((a, b) => b.date - a.date),
       });
       setLoading(false);
     });
