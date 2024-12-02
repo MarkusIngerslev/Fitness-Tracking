@@ -5,7 +5,11 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   fetchSignInMethodsForEmail,
+  initializeAuth,
+  getReactNativePersistence,
 } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -19,7 +23,17 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
+// Ensure consistent auth initialization
+const auth =
+  Platform.OS === "web"
+    ? getAuth(app)
+    : initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
+
+// Initialize auth state immediately
+getAuth().currentUser;
 
 export {
   app,

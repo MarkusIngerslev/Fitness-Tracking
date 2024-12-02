@@ -1,41 +1,47 @@
+// Libaries
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import Toast from "react-native-toast-message";
 import { auth, signInWithEmailAndPassword } from "../firebase";
 
+// Utils
+import { storeUserSession } from "../utils/storage";
+
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in successfully
-        const user = userCredential.user;
-        console.log("Logged in with user: ", user.email);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Dashboard" }],
-        }); // Navigate to Dashboard and reset navigation stack
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error("Login error: ", errorCode, errorMessage);
-        let toastMessage = errorMessage;
-        if (errorCode === "auth/user-not-found") {
-          toastMessage = "User not found";
-        } else if (errorCode === "auth/invalid-email") {
-          toastMessage = "Invalid email address";
-        } else if (errorCode === "auth/invalid-credential") {
-          toastMessage = "Invalid credentials";
-        }
-        Toast.show({
-          type: "error",
-          text1: "Login Error",
-          text2: toastMessage,
-        });
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      await storeUserSession(user);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Dashboard" }],
       });
+    } catch (error) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error("Login error: ", errorCode, errorMessage);
+      let toastMessage = errorMessage;
+      if (errorCode === "auth/user-not-found") {
+        toastMessage = "User not found";
+      } else if (errorCode === "auth/invalid-email") {
+        toastMessage = "Invalid email address";
+      } else if (errorCode === "auth/invalid-credential") {
+        toastMessage = "Invalid credentials";
+      }
+      Toast.show({
+        type: "error",
+        text1: "Login Error",
+        text2: toastMessage,
+      });
+    }
   };
 
   return (

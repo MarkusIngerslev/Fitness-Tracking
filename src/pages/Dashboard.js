@@ -1,10 +1,12 @@
+// Libaries
 import React from "react";
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
 import { auth, signOut } from "../firebase";
 import Toast from "react-native-toast-message";
 import { useTrainingData } from "../hooks/useTrainingData";
 
-// Test data
+// Utils
+import { clearUserSession } from "../utils/storage";
 // import { addTestWorkouts } from "../utils/addTestData";
 
 const StatCard = ({ title, value }) => (
@@ -21,6 +23,7 @@ const Dashboard = ({ navigation }) => {
     signOut(auth)
       .then(() => {
         console.log("User signed out");
+        clearUserSession();
         navigation.reset({
           index: 0,
           routes: [{ name: "Login" }],
