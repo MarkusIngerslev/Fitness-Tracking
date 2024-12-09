@@ -39,7 +39,7 @@ Funktionalitet og Komponenter
     - Formular til træning: Opret en skærm til logning af daglige øvelser. Brug TextInput til at tilføje øvelsesnavne, tid og gentagelser. Gem dataen i Firebase Firestore.
     - Liste over øvelser: Vis tidligere gemte øvelser i en liste, og gør det muligt at redigere og slette dem.
 
-- [ ] **Fremskridtstracking med Billeder**
+- [x] **Fremskridtstracking med Billeder**
     - Brug Camera eller Photos til at tage billeder af brugerens fremskridt.
     - Gem billederne i Firebase Storage, og vis dem på en "Fremskridt"-skærm.
     - Tilføj en knap til at uploade eller tage nye billeder.

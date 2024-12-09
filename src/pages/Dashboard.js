@@ -66,6 +66,10 @@ const Dashboard = ({ navigation }) => {
               title="View Progress"
               onPress={() => navigation.navigate("Progress")}
             />
+            <Button
+              title="Progress Photos"
+              onPress={() => navigation.navigate("ImageProgress")}
+            />
 
             {/* Tilføj test data */}
             {/* <Button
