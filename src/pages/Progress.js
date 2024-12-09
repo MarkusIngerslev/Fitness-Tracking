@@ -1,12 +1,27 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useTrainingData } from "../hooks/useTrainingData";
+import EditWorkoutModal from "../components/EditWorkoutModal";
 
 const Progress = () => {
   const { stats, loading } = useTrainingData();
+  const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const WorkoutHistoryItem = ({ workout }) => (
-    <View style={styles.historyItem}>
+    <TouchableOpacity
+      style={styles.historyItem}
+      onPress={() => {
+        setSelectedWorkout(workout);
+        setModalVisible(true);
+      }}
+    >
       <Text style={styles.historyDate}>
         {new Date(workout.date).toLocaleDateString()}
       </Text>
@@ -18,7 +33,7 @@ const Progress = () => {
           </Text>
         ))}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const isThisWeek = (date) => {
@@ -34,50 +49,69 @@ const Progress = () => {
     stats.workoutHistory?.filter((w) => !isThisWeek(w.date)) || [];
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Progress</Text>
-      </View>
-
-      <View style={styles.statsOverview}>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{stats.totalWorkouts}</Text>
-          <Text style={styles.statLabel}>Total Workouts</Text>
+    <>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Progress</Text>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{stats.thisWeekWorkouts}</Text>
-          <Text style={styles.statLabel}>This Week</Text>
+
+        <View style={styles.statsOverview}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.totalWorkouts}</Text>
+            <Text style={styles.statLabel}>Total Workouts</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.thisWeekWorkouts}</Text>
+            <Text style={styles.statLabel}>This Week</Text>
+          </View>
         </View>
-      </View>
 
-      {loading ? (
-        <Text>Loading history...</Text>
-      ) : (
-        <>
-          <View style={styles.weekSection}>
-            <Text style={styles.sectionTitle}>This Week's Workouts</Text>
-            {thisWeekWorkouts.length > 0 ? (
-              thisWeekWorkouts.map((workout) => (
-                <WorkoutHistoryItem key={workout.id} workout={workout} />
-              ))
-            ) : (
-              <Text style={styles.emptyText}>No workouts this week</Text>
-            )}
-          </View>
+        {loading ? (
+          <Text>Loading history...</Text>
+        ) : (
+          <>
+            <View style={styles.weekSection}>
+              <Text style={styles.sectionTitle}>This Week's Workouts</Text>
+              {thisWeekWorkouts.length > 0 ? (
+                thisWeekWorkouts.map((workout) => (
+                  <WorkoutHistoryItem key={workout.id} workout={workout} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No workouts this week</Text>
+              )}
+            </View>
 
-          <View style={styles.historySection}>
-            <Text style={styles.sectionTitle}>Previous Workouts</Text>
-            {olderWorkouts.length > 0 ? (
-              olderWorkouts.map((workout) => (
-                <WorkoutHistoryItem key={workout.id} workout={workout} />
-              ))
-            ) : (
-              <Text style={styles.emptyText}>No previous workouts</Text>
-            )}
-          </View>
-        </>
-      )}
-    </ScrollView>
+            <View style={styles.historySection}>
+              <Text style={styles.sectionTitle}>Previous Workouts</Text>
+              {olderWorkouts.length > 0 ? (
+                olderWorkouts.map((workout) => (
+                  <WorkoutHistoryItem key={workout.id} workout={workout} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No previous workouts</Text>
+              )}
+            </View>
+          </>
+        )}
+      </ScrollView>
+
+      <EditWorkoutModal
+        visible={modalVisible}
+        workout={selectedWorkout}
+        onClose={() => {
+          setModalVisible(false);
+          setSelectedWorkout(null);
+        }}
+        onUpdate={() => {
+          setModalVisible(false);
+          setSelectedWorkout(null);
+        }}
+        onDelete={() => {
+          setModalVisible(false);
+          setSelectedWorkout(null);
+        }}
+      />
+    </>
   );
 };
 

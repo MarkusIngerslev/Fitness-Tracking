@@ -27,15 +27,15 @@ Til udviklingen af denne app har jeg benyttet blandt andet følgende emner fra u
 
 Funktionalitet og Komponenter
 
-1. **Brugerlogin (Google/Firebase)**
+1. **Brugerlogin (Google/Firebase)** [x]
     - Start med en login-skærm, hvor brugeren kan logge ind med Google. Brug Firebase Authentication til at administrere loginoplysningerne.
 
-1. **Hovedskærm (Dashboard)**
+1. **Hovedskærm (Dashboard)** [x]
     - Komponenter: Text, Button, List
     - Vis daglig træningsstatistik, hurtig adgang til træningslogning, og se fremskridt.
     - Brug useState og useEffect til at hente data og opdatere brugerens statistikker.
 
-1. **Træningslogning**
+1. **Træningslogning** [x]
     - Formular til træning: Opret en skærm til logning af daglige øvelser. Brug TextInput til at tilføje øvelsesnavne, tid og gentagelser. Gem dataen i Firebase Firestore.
     - Liste over øvelser: Vis tidligere gemte øvelser i en liste, og gør det muligt at redigere og slette dem.
 
