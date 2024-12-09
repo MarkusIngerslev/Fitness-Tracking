@@ -20,7 +20,6 @@ const LoginScreen = ({ navigation }) => {
       );
       const user = userCredential.user;
       await storeUserSession(user);
-      navigation.navigate("Dashboard");
     } catch (error) {
       const errorCode = error.code;
       const errorMessage = error.message;
