@@ -24,10 +24,6 @@ const Dashboard = ({ navigation }) => {
       .then(() => {
         console.log("User signed out");
         clearUserSession();
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Login" }],
-        });
         Toast.show({
           type: "success",
           text1: "Logout Successful",

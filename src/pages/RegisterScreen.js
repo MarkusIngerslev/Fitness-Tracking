@@ -7,7 +7,7 @@ import {
   fetchSignInMethodsForEmail,
 } from "../firebase";
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -37,10 +37,6 @@ const RegisterScreen = ({ navigation }) => {
             // User registered successfully
             const user = userCredential.user;
             console.log("Registered user: ", user.email);
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Dashboard" }],
-            }); // Navigate to Dashboard and reset navigation stack
           })
           .catch((error) => {
             const errorCode = error.code;
