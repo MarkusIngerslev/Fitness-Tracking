@@ -44,17 +44,17 @@ Funktionalitet og Komponenter
     - Gem billederne i Firebase Storage, og vis dem på en "Fremskridt"-skærm.
     - Tilføj en knap til at uploade eller tage nye billeder.
 
-- [ ] **Kort (Map) til Tracking af Løberuter**
+- [x] **Kort (Map) til Tracking af Løberuter**
     - Brug MapView til at spore brugerens løbe- eller gåture. Implementér en simpel tracker, der viser ruten på kortet.
     - Brug Firebase Firestore til at gemme ruter og vise dem senere.
-
-- [ ] **Gestures og Animation**
-    - Brug Gestures til at swipe mellem de forskellige hovedskærme (f.eks. dashboard, fremskridt, og træning).
-    - Brug Animationer til at gøre overgange mellem skærme og elementer mere engagerende. Fx animér visning af statistikker eller når brugeren afslutter en træning.
 
 - [ ] **Brugerindstillinger og Context**
     - Brug Context til at holde styr på brugerens data på tværs af appen, som fx præferencer og mål.
     - Tilføj en skærm til at ændre brugerindstillinger som mål for daglig aktivitet eller vægttabs-/muskelopbygningsmål.
+
+- [ ] **Gestures og Animation**
+    - Brug Gestures til at swipe mellem de forskellige hovedskærme (f.eks. dashboard, fremskridt, og træning).
+    - Brug Animationer til at gøre overgange mellem skærme og elementer mere engagerende. Fx animér visning af statistikker eller når brugeren afslutter en træning.
 
 - [ ] **Styling med TailwindCSS**
     - Hvis finder tid til det, kan jeg bruge TailwindCSS (via Tailwind-styling til React Native, som f.eks. tailwind-rn) for at lave en konsistent og let vedligeholdelig styling af appen.
