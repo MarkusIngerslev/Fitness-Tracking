@@ -3,14 +3,34 @@ import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import { getFirestore, addDoc, collection } from "firebase/firestore";
+import CompletedRoutesMenu from "../components/CompletedRoutesMenu";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import {
+  getFirestore,
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { auth } from "../firebase";
+
+// helpers
+import {
+  calculateMapBounds,
+  calculateDistance,
+  getRandomColor,
+} from "../utils/mapHelpers";
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [completedRoutes, setCompletedRoutes] = useState([]);
+  const [selectedRouteId, setSelectedRouteId] = useState(null);
 
   const navigation = useNavigation();
 
@@ -60,57 +80,68 @@ const MapScreen = () => {
     };
   }, [isTracking]);
 
-  const toggleTracking = () => {
-    if (isTracking) {
-      saveRoute();
-    }
-    setIsTracking(!isTracking);
-  };
+  useEffect(() => {
+    const fetchRoutes = async () => {
+      try {
+        const db = getFirestore();
+        const routesRef = collection(db, "routes");
+        const q = query(routesRef, where("userId", "==", auth.currentUser.uid));
+        const querySnapshot = await getDocs(q);
 
-  const saveRoute = async () => {
-    try {
-      const db = getFirestore();
-      await addDoc(collection(db, "routes"), {
-        userId: auth.currentUser.uid,
-        coordinates: routeCoordinates,
-        date: new Date().toISOString(),
-        distance: calculateDistance(routeCoordinates),
-      });
+        const routes = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setCompletedRoutes(routes);
+      } catch (error) {
+        console.error("Error fetching routes:", error);
+      }
+    };
+
+    fetchRoutes();
+  }, []);
+
+  const handleRouteSelect = (route) => {
+    if (selectedRouteId === route.id) {
+      setSelectedRouteId(null);
       setRouteCoordinates([]);
-    } catch (error) {
-      console.error("Error saving route:", error);
+    } else {
+      setSelectedRouteId(route.id);
+      if (route.coordinates && route.coordinates.length > 0) {
+        setRouteCoordinates(route.coordinates);
+        const bounds = calculateMapBounds(route.coordinates);
+        if (bounds) {
+          mapRef.current?.animateToRegion(bounds, 1000);
+        }
+      }
     }
   };
 
-  const calculateDistance = (coordinates) => {
-    // Basic distance calculation - can be improved
-    let distance = 0;
-    for (let i = 0; i < coordinates.length - 1; i++) {
-      const lat1 = coordinates[i].latitude;
-      const lon1 = coordinates[i].longitude;
-      const lat2 = coordinates[i + 1].latitude;
-      const lon2 = coordinates[i + 1].longitude;
-      distance += getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2);
+  const mapRef = React.useRef(null);
+
+  const toggleTracking = async () => {
+    if (isTracking) {
+      setIsTracking(false);
+      try {
+        const db = getFirestore();
+        const routeData = {
+          userId: auth.currentUser.uid,
+          date: new Date().toISOString(),
+          coordinates: routeCoordinates,
+          distance: calculateDistance(routeCoordinates),
+          color: getRandomColor(),
+        };
+
+        await addDoc(collection(db, "routes"), routeData);
+        setCompletedRoutes((prev) => [...prev, routeData]);
+      } catch (error) {
+        console.error("Error saving route:", error);
+      }
+    } else {
+      setIsTracking(true);
+      setRouteCoordinates([]);
     }
-    return distance;
-  };
-
-  const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Radius of the earth in km
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
-  const deg2rad = (deg) => {
-    return deg * (Math.PI / 180);
   };
 
   if (!location) {
@@ -125,6 +156,7 @@ const MapScreen = () => {
     <>
       <View style={styles.container}>
         <MapView
+          ref={mapRef}
           style={styles.map}
           initialRegion={{
             latitude: location.coords.latitude,
@@ -145,7 +177,12 @@ const MapScreen = () => {
             <Polyline
               coordinates={routeCoordinates}
               strokeWidth={4}
-              strokeColor="#FF0000"
+              strokeColor={
+                selectedRouteId
+                  ? completedRoutes.find((r) => r.id === selectedRouteId)
+                      ?.color || "#FF0000"
+                  : "#FF0000"
+              }
             />
           )}
         </MapView>
@@ -170,6 +207,29 @@ const MapScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Routes menu overlay */}
+        {menuVisible && (
+          <TouchableOpacity
+            style={styles.overlay}
+            activeOpacity={1}
+            onPress={() => setMenuVisible(false)}
+          />
+        )}
+
+        <TouchableOpacity
+          style={styles.routeMenu}
+          onPress={() => setMenuVisible(!menuVisible)}
+        >
+          <Icon name="menu" size={24} color="#000" />
+        </TouchableOpacity>
+
+        <CompletedRoutesMenu
+          visible={menuVisible}
+          routes={completedRoutes}
+          onRouteSelect={handleRouteSelect}
+          selectedRouteId={selectedRouteId}
+        />
       </View>
     </>
   );
@@ -208,6 +268,24 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  routeMenu: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 25,
+    elevation: 5,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 100,
+    backgroundColor: "transparent",
+    zIndex: 999, // Make sure this is less than the menu's zIndex
   },
 });
 
