@@ -70,6 +70,10 @@ const Dashboard = ({ navigation }) => {
               title="Progress Photos"
               onPress={() => navigation.navigate("ImageProgress")}
             />
+            <Button
+              title="Track Route"
+              onPress={() => navigation.navigate("MapScreen")}
+            />
 
             {/* Tilføj test data */}
             {/* <Button

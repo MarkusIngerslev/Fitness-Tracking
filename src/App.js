@@ -21,6 +21,7 @@ import Dashboard from "./pages/Dashboard";
 import LogWorkout from "./pages/LogWorkout";
 import Progress from "./pages/Progress";
 import ImageProgress from "./pages/ImageProgress";
+import MapScreen from "./pages/MapScreen";
 
 const Stack = createStackNavigator();
 
@@ -84,6 +85,7 @@ const App = () => {
             <Stack.Screen name="LogWorkout" component={LogWorkout} />
             <Stack.Screen name="Progress" component={Progress} />
             <Stack.Screen name="ImageProgress" component={ImageProgress} />
+            <Stack.Screen name="MapScreen" component={MapScreen} />
           </>
         )}
       </Stack.Navigator>
