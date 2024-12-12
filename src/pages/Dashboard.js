@@ -95,7 +95,7 @@ const Dashboard = ({ navigation }) => {
               <Text>
                 {new Date(stats.lastWorkout.date).toLocaleDateString()}
                 {" - "}
-                {stats.lastWorkout.type}
+                {stats.lastWorkout.name}
               </Text>
             ) : (
               <Text>No workouts logged yet</Text>

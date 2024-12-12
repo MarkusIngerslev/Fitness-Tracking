@@ -39,10 +39,13 @@ export const useTrainingData = () => {
 
         unsubscribe = onSnapshot(userWorkoutsQuery, (snapshot) => {
           try {
-            const workouts = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
+            const workouts = snapshot.docs
+              .map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              }))
+              // Sort workouts by date in descending order (newest first)
+              .sort((a, b) => new Date(b.date) - new Date(a.date));
 
             setStats({
               totalWorkouts: workouts.length,
@@ -52,7 +55,7 @@ export const useTrainingData = () => {
                 weekAgo.setDate(weekAgo.getDate() - 7);
                 return workoutDate >= weekAgo;
               }).length,
-              lastWorkout: workouts[0],
+              lastWorkout: workouts[0], // This will now be the most recent workout
               workoutHistory: workouts,
             });
           } catch (error) {
