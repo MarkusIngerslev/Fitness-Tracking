@@ -1,3 +1,4 @@
+import Icon from "react-native-vector-icons/MaterialIcons";
 import React from "react";
 import {
   View,
@@ -13,6 +14,7 @@ const CompletedRoutesMenu = ({
   routes,
   onRouteSelect,
   selectedRouteId,
+  onDeleteRoute,
 }) => {
   const slideAnim = React.useRef(new Animated.Value(-300)).current;
 
@@ -34,28 +36,37 @@ const CompletedRoutesMenu = ({
       ]}
     >
       <ScrollView>
-        {routes.map((route) => (
-          <TouchableOpacity
-            key={route.id}
-            style={[
-              styles.routeItem,
-              selectedRouteId === route.id && styles.selectedRoute,
-            ]}
-            onPress={() => onRouteSelect(route)}
-          >
-            <Text
-              style={[
-                styles.routeText,
-                selectedRouteId === route.id && styles.selectedRouteText,
-              ]}
-            >
-              {new Date(route.date).toLocaleDateString()}
-            </Text>
-            <Text style={styles.distanceText}>
-              {route.distance ? `${route.distance.toFixed(2)} km` : "N/A"}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {routes
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .map((route) => (
+            <View key={route.id} style={styles.routeContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.routeItem,
+                  selectedRouteId === route.id && styles.selectedRoute,
+                ]}
+                onPress={() => onRouteSelect(route)}
+              >
+                <Text
+                  style={[
+                    styles.routeText,
+                    selectedRouteId === route.id && styles.selectedRouteText,
+                  ]}
+                >
+                  {new Date(route.date).toLocaleDateString()}
+                </Text>
+                <Text style={styles.distanceText}>
+                  {route.distance ? `${route.distance.toFixed(2)} km` : "N/A"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => onDeleteRoute(route.id)}
+              >
+                <Icon name="delete" size={20} color="#FF0000" />
+              </TouchableOpacity>
+            </View>
+          ))}
       </ScrollView>
     </Animated.View>
   );
@@ -92,6 +103,21 @@ const styles = StyleSheet.create({
   },
   selectedRouteText: {
     fontWeight: "bold",
+  },
+  routeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  routeItem: {
+    flex: 1,
+    padding: 15,
+  },
+  deleteButton: {
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

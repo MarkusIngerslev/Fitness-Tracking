@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import CompletedRoutesMenu from "../components/CompletedRoutesMenu";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import Toast from "react-native-toast-message";
 import {
   getFirestore,
   addDoc,
@@ -12,6 +13,8 @@ import {
   query,
   where,
   getDocs,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { auth } from "../firebase";
 
@@ -26,6 +29,8 @@ const MapScreen = () => {
   const [location, setLocation] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const [followsUser, setFollowsUser] = useState(true);
+
   const [errorMsg, setErrorMsg] = useState(null);
 
   const [menuVisible, setMenuVisible] = useState(false);
@@ -126,6 +131,7 @@ const MapScreen = () => {
       try {
         const db = getFirestore();
         const routeData = {
+          id: Date.now().toString(), // Add unique ID
           userId: auth.currentUser.uid,
           date: new Date().toISOString(),
           coordinates: routeCoordinates,
@@ -133,8 +139,11 @@ const MapScreen = () => {
           color: getRandomColor(),
         };
 
-        await addDoc(collection(db, "routes"), routeData);
-        setCompletedRoutes((prev) => [...prev, routeData]);
+        const docRef = await addDoc(collection(db, "routes"), routeData);
+        setCompletedRoutes((prev) => [
+          ...prev,
+          { ...routeData, id: docRef.id },
+        ]);
       } catch (error) {
         console.error("Error saving route:", error);
       }
@@ -152,6 +161,67 @@ const MapScreen = () => {
     );
   }
 
+  const handleDeleteRoute = async (routeId) => {
+    Alert.alert("Delete Route", "Are you sure you want to delete this route?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const db = getFirestore();
+            await deleteDoc(doc(db, "routes", routeId));
+            setCompletedRoutes((prev) =>
+              prev.filter((route) => route.id !== routeId)
+            );
+            if (selectedRouteId === routeId) {
+              setSelectedRouteId(null);
+              setRouteCoordinates([]);
+            }
+            Toast.show({
+              type: "success",
+              text1: "Route deleted",
+              text2: "The route was successfully deleted",
+              visibilityTime: 2000,
+            });
+          } catch (error) {
+            console.error("Error deleting route:", error);
+            Toast.show({
+              type: "error",
+              text1: "Error",
+              text2: "Failed to delete route",
+              visibilityTime: 2000,
+            });
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleMapMovement = () => {
+    if (followsUser) {
+      setFollowsUser(false);
+    }
+  };
+
+  const centerMapOnUser = () => {
+    if (location?.coords) {
+      mapRef.current?.animateToRegion(
+        {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        },
+        1000
+      );
+      setFollowsUser(true);
+    }
+  };
+
   return (
     <>
       <View style={styles.container}>
@@ -165,7 +235,9 @@ const MapScreen = () => {
             longitudeDelta: 0.0421,
           }}
           showsUserLocation={true}
-          followsUserLocation={true}
+          followsUserLocation={followsUser}
+          onPanDrag={handleMapMovement}
+          onRegionChangeComplete={handleMapMovement}
         >
           {routeCoordinates.length > 0 && (
             <Polyline
@@ -202,6 +274,16 @@ const MapScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Center button */}
+        {!followsUser && (
+          <TouchableOpacity
+            style={styles.centerButton}
+            onPress={centerMapOnUser}
+          >
+            <Icon name="gps-fixed" size={24} color="#000" />
+          </TouchableOpacity>
+        )}
+
         {/* Routes menu overlay */}
         {menuVisible && (
           <TouchableOpacity
@@ -223,6 +305,7 @@ const MapScreen = () => {
           routes={completedRoutes}
           onRouteSelect={handleRouteSelect}
           selectedRouteId={selectedRouteId}
+          onDeleteRoute={handleDeleteRoute}
         />
       </View>
     </>
@@ -279,7 +362,23 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 100,
     backgroundColor: "transparent",
-    zIndex: 999, // Make sure this is less than the menu's zIndex
+    zIndex: 999,
+  },
+  centerButton: {
+    position: "absolute",
+    top: 60,
+    left: 70,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
 });
 
