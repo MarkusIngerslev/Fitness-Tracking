@@ -23,7 +23,7 @@ Til udviklingen af denne app har jeg benyttet blandt andet følgende emner fra u
 - Gestures
 - Context
 
-### Ønskede features ved slut
+## Ønskede features ved slut
 
 Funktionalitet og Komponenter
 
@@ -58,3 +58,14 @@ Funktionalitet og Komponenter
 
 - [ ] **Styling med TailwindCSS**
     - Hvis finder tid til det, kan jeg bruge TailwindCSS (via Tailwind-styling til React Native, som f.eks. tailwind-rn) for at lave en konsistent og let vedligeholdelig styling af appen.
+
+## TODO
+- Map
+    - Ændre måden man sletter en rute, til at skulle *trække* den til siden i stedet for at klikke på en enkelt knap.
+- Dashboard
+    - Ryk knapper fra midten af skærmen til en seperat *burgermenu* 
+    - Tilføj område til at holde på bjælke graf over med udførte dages workout. 
+- New Workout
+    - Tilføj så når man skal skrive navnet af en **exercise** at der er en **dropdown menu** med allerede eksisterne øvelser fra database
+    - Lav en ny måde at tilføje flere øvelser til workout
+        - Lav område under første boks til at *holde* på tilføjet workouts. Så der kun er en enkel input form.
