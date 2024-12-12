@@ -159,20 +159,14 @@ const MapScreen = () => {
           ref={mapRef}
           style={styles.map}
           initialRegion={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
+            latitude: location?.coords.latitude || 0,
+            longitude: location?.coords.longitude || 0,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
+          showsUserLocation={true}
+          followsUserLocation={true}
         >
-          {/* Tilføj markør for brugerens position */}
-          <Marker
-            coordinate={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            }}
-            title="Du er her"
-          />
           {routeCoordinates.length > 0 && (
             <Polyline
               coordinates={routeCoordinates}
